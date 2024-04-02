@@ -1,38 +1,60 @@
 const Realm = require('realm')
 
-let UserSchema = {
-   name: 'User',
-   primaryKey: 'name',
-   properties: {
-      name: 'string',
-      passwd: 'string'
-   }
-}
-
-let PostSchema = {
-  name: 'Post',
-  primaryKey: 'title',
+let DeviceSchema = {
+  name: 'Device',
   properties: {
-    timestamp: 'date',
-    title: 'string', 
-    content: 'string',
-    author: 'User',
-    blog: 'Blog'
-  }
-}
+    id: 'string',
+    name: 'string',
+    description: 'string',
+    price: 'float',
+    seller: 'User',
+    status: 'string',
+    type: 'string',
+  },
+};
 
-let BlogSchema = {
-  name : 'Blog',
-  primaryKey: 'title',
-  properties:{
-     title: 'string',
-     creator: 'User' //esto es una referencia a un usuario
-   }
-}
+let UserSchema = {
+  name: 'User',
+  properties: {
+    id: 'string',
+    name: 'string',
+    email: 'string',
+    password: 'string',
+    sales: 'Device[]',
+    ratings: 'Rating[]',
+  },
+};
+
+let RatingSchema = {
+  name: 'Rating',
+  properties: {
+    id: 'string',
+    title: 'string',
+    comment: 'string',
+    author: 'User',
+    seller: 'User',
+    device: 'Device',
+  },
+};
+
+let PurchaseSchema = {
+  name: 'Purchase',
+  properties: {
+    id: 'string',
+    price: 'float',
+    status: 'bool',
+    dateOfPurchase: 'string',
+    deadline: 'string',
+    buyer: 'User',
+    seller: 'User',
+    device: 'Device',
+  },
+};
+
 
 // // // MODULE EXPORTS
 
-let config = {path: './data/blogs.realm', schema: [PostSchema, UserSchema, BlogSchema]}
+let config = {path: './data/blogs.realm', schema: [DeviceSchema, UserSchema, RatingSchema, PurchaseSchema]}
 
 exports.getDB = async () => await Realm.open(config)
 

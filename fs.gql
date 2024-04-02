@@ -1,0 +1,113 @@
+const schema = buildSchema(`
+type Query {
+  getUser(id: ID!): User
+  listUsers: [User!]!
+  listDevices: [Device!]!
+  listDevicesBySeller(sellerId: ID!): [Device!]!
+  getDevice(id: ID!): Device
+  listSalesByUser(userId: ID!): [Purchase!]!
+  countSalesByUser(userId: ID!): Int!
+  countDevicesByUser(userId: ID!): Int!
+  countTotalSales: Int!
+  countTotalDevices: Int!
+}
+
+type Mutation {
+  createUser(input: CreateUserInput!): User!
+  updateUser(id: ID!, input: UpdateUserInput!): User!
+  deleteUser(id: ID!): ID!
+  createDevice(input: CreateDeviceInput!): Device!
+  updateDevice(id: ID!, input: UpdateDeviceInput!): Device!
+  deleteDevice(id: ID!): ID!
+  createPurchase(input: CreatePurchaseInput!): Purchase!
+  updatePurchase(id: ID!, input: UpdatePurchaseInput!): Purchase!
+  deletePurchase(id: ID!): ID!
+}
+
+input CreateUserInput {
+  name: String!
+  email: String!
+  password: String!
+}
+
+input UpdateUserInput {
+  name: String
+  email: String
+  password: String
+}
+
+input CreateDeviceInput {
+  name: String!
+  description: String!
+  price: Float!
+  sellerId: ID!
+  status: String!
+  type: String!
+}
+
+input UpdateDeviceInput {
+  name: String
+  description: String
+  price: Float
+  status: String
+  type: String
+}
+
+input CreatePurchaseInput {
+  price: Float!
+  status: Boolean!
+  dateOfPurchase: String!
+  deadline: String!
+  buyerId: ID!
+  sellerId: ID!
+  deviceId: ID!
+}
+
+input UpdatePurchaseInput {
+  price: Float
+  status: Boolean
+  dateOfPurchase: String
+  deadline: String
+}
+
+
+type Device {
+  id: ID!
+  name: String!
+  description: String!
+  price: Float!
+  seller: User!
+  status: String!
+  type: String!
+}
+
+type User {
+  id: ID!
+  name: String!
+  email: String!
+  password: String!
+  sales: [Device!]
+  ratings: [Rating!]
+}
+
+type Rating {
+  id: ID!
+  title: String!
+  comment: String!
+  author: User!
+  seller: User!
+  device: Device!
+}
+
+type Purchase {
+  id: ID!
+  price: Float!
+  status: Boolean!
+  dateOfPurchase: String!
+  deadline: String!
+  buyer: User!
+  seller: User!
+  device: Device!
+}
+
+`)
