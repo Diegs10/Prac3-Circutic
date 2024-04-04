@@ -1,4 +1,7 @@
 const { graphql, buildSchema } = require('graphql')
+//
+
+
 //import { GraphQLSchema, GraphQLObjectType, GraphQLString } from 'graphql';
 
 //import { graphql, buildSchema} from 'graphql'
@@ -14,37 +17,11 @@ model.getDB().then(db => {DB = db})
 const sse  = require('./utils/notifications')
 sse.start()
 
+const fs = require('fs')
+let gql = fs.readFileSync('esquema.gql').toString()
+const schema = buildSchema(gql)
 
-const schema = buildSchema(`
-  type Query {
-    hello: String
-    users: [User]
-    blogs: [Blog]
-    searchBlog(q:String!):[Blog]
-    posts(blogId:ID!):[Post]
-    searchPost(blogId:ID!, q:String!):[Post]
-  }
-  type Mutation {
-    addUser(name:String!):User!
-    addBlog(title:String!,creator:ID!):Blog!
-    addPost(title:String!,content:String!,authorId:ID!,blogId:ID!):Post
-  }
-  type User{
-	  name: String
-  }
-
-  type Post{
-	  title: String
-	  content: String
-	  author: User
-	  blog: Blog
-  }
-  type Blog{
-	  creator: User
-	  title: String
-  }
-`)
-
+let id = 5
 
 const rootValue = {
 
@@ -52,16 +29,16 @@ const rootValue = {
 
      users: () => DB.objects('User'),
      
-     blogs: () => DB.objects('Blog'),
+     blogs: () => DB.objects('Device'),
      
-     searchBlog: ({ q }) => {
+     /*searchBlog: ({ q }) => {
        q = q.toLowerCase()
        return DB.objects('Blog').filter(x => x.title.toLowerCase().includes(q))
      },
      
      posts: ({ blogId }) => {
        return DB.objects('Post').filter(x => x.blog.title == blogId)
-     },
+     }, */
 
      addUser: ({name}) => {
 
@@ -69,7 +46,7 @@ const rootValue = {
 
        if (!usr){
          
-         let data = {name: name, passwd: 'xxxx'}
+         let data = {id: id++, name: name, email: "", password: 'xxx', sales: "", ratings: ""}
 
          DB.write( () => { 
             usr = DB.create('User', data)
@@ -80,9 +57,9 @@ const rootValue = {
 
        return null
 
-     },
+     }
      
-     addPost: ({title, content, authorId, blogId}) => {
+     /*addPost: ({title, content, authorId, blogId}) => {
 
        let blog = DB.objectForPrimaryKey('Blog', blogId)
        let auth = DB.objectForPrimaryKey('User', authorId)
@@ -109,6 +86,7 @@ const rootValue = {
 
        return null
      }
+     */
 }
 
 exports.root   = rootValue

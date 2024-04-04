@@ -25,9 +25,11 @@ app.all(
 )
 
 // Serve the GraphiQL IDE
+// Añadir contenido estático y middleware
 app.get("/", (_req, res) => {
   res.type("html")
   res.end(ruruHTML({ endpoint: "/graphql" }))
+  // res.buildSchema('./fs') fa q pete
 })
 
 
