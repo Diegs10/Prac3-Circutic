@@ -20,8 +20,8 @@ let UserSchema = {
     name: 'string',
     email: 'string',
     password: 'string',
-    sales: 'string', // cambiar Device[]
-    ratings: 'string' // cambiar Rating[]
+    sales: 'Device[]',// cambiar Device[]
+    ratings: 'Rating[]'// cambiar Rating[]
   }
 }
 

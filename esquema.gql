@@ -85,8 +85,8 @@ type User {
   name: String!
   email: String!
   password: String!
-  sales: [Device!]
-  ratings: [Rating!]
+  sales: [Device]
+  ratings: [Rating]
 }
 
 type Rating {

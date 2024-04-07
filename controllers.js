@@ -26,8 +26,21 @@ let id = 5
 const rootValue = {
 
      hello: () => "Hello World!",
+     getUser: async (_, { id }) => {
+      // Buscar el usuario por su ID en la base de datos Realm
+      const user = await DB.objects('User').filtered(`id = "${id}"`);
 
-     users: () => DB.objects('User'),
+      // Verificar si el usuario existe
+      if (user.length === 0) {
+        throw new Error('Usuario no encontrado');
+      }
+
+      // Devolver el usuario encontrado
+      return user[0];
+    }
+  ,
+
+     user: () => DB.objects('User'),
      
      blogs: () => DB.objects('Device'),
      
@@ -40,24 +53,53 @@ const rootValue = {
        return DB.objects('Post').filter(x => x.blog.title == blogId)
      }, */
 
-     addUser: ({name}) => {
+     createUser: ({ input }) => {
+      let user = null;
+      let data = {
+        id: Realm.BSON.ObjectID().toString(), 
+        name: input.name,
+        email: input.email,
+        password: input.password,
+        sales: input.sales,
+        ratings:input.ratings
+      }
+      DB.write(() => {
+        user = DB.create('User', data);
+      });
 
-       let usr = DB.objectForPrimaryKey('User', name)
+      sse.emitter.emit('nuevo-cliente',data)
+      
+      return user;
+    },
 
-       if (!usr){
-         
-         let data = {id: id++, name: name, email: "", password: 'xxx', sales: "", ratings: ""}
+    updateUser: async ({id, input}) => {
+      const user = await DB.objects('User').filtered(`id = "${id}"`);
+      if (user.length === 0) {
+        throw new Error('El usuario no se ha encontrado');
+      }
+      DB.write(() => {
+        if (input.name !== undefined) user[0].name = input.name;
+        if (input.email !== undefined) user[0].email = input.email;
+        if (input.password !== undefined) user[0].password = input.password;
+      });
 
-         DB.write( () => { 
-            usr = DB.create('User', data)
-         })
+      return user[0];
 
-         return data
-       }
+    },
 
-       return null
+    deleteUser: async ({id}) => {
+      const user = await DB.objects('User').filtered(`id = "${id}"`);
+      if (user.length === 0) {
+        throw new Error('El usuario no existe');
+      }
 
-     }
+      DB.write(() => {
+        DB.delete(user);
+      });
+
+      return id
+
+    },
      
      /*addPost: ({title, content, authorId, blogId}) => {
 
