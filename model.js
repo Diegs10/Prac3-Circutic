@@ -80,8 +80,8 @@ if (process.argv[1] == __filename){ //TESTING PART
                                         name: 'Jon Comida',
                                         email: 'john@example.com',
                                         password: '1234',
-                                        sales: "null", // cambiar
-                                        ratings: "null"// cambiar
+                                        sales: [], // cambiar
+                                        ratings: []// cambiar
                                       })
 
 
@@ -89,8 +89,8 @@ if (process.argv[1] == __filename){ //TESTING PART
                                         name: 'Alberto Martinez',
                                         email: 'mAl@example.com',
                                         password: '12345',
-                                        sales: "null",// cambiar
-                                        ratings: "null"// cambiar
+                                        sales: [],// cambiar
+                                        ratings: []// cambiar
                                       })
 
         // DeviceSchema

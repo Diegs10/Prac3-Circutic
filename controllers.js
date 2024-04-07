@@ -25,10 +25,14 @@ let id = 5
 
 const rootValue = {
 
-     hello: () => "Hello World!",
+     listUsers: () => {
+     let users = DB.objects('User');
+     return users
+     },
+     
      getUser: async (_, { id }) => {
       // Buscar el usuario por su ID en la base de datos Realm
-      const user = await DB.objects('User').filtered(`id = "${id}"`);
+      let user = await DB.objects('User').filtered(`id = "${id}"`);
 
       // Verificar si el usuario existe
       if (user.length === 0) {
@@ -39,19 +43,23 @@ const rootValue = {
       return user[0];
     }
   ,
+    listDevices: () => {
+    let devices = DB.objects('Device');
+    return devices 
+    },
 
-     user: () => DB.objects('User'),
-     
-     blogs: () => DB.objects('Device'),
-     
-     /*searchBlog: ({ q }) => {
-       q = q.toLowerCase()
-       return DB.objects('Blog').filter(x => x.title.toLowerCase().includes(q))
-     },
-     
-     posts: ({ blogId }) => {
-       return DB.objects('Post').filter(x => x.blog.title == blogId)
-     }, */
+    getDevice: async (_, { id }) => {
+      // Buscar el usuario por su ID en la base de datos Realm
+      let device = await DB.objects('Device').filtered(`id = "${id}"`);
+
+      // Verificar si el usuario existe
+      if (device.length === 0) {
+        throw new Error('El dispositivo no se ha encontrado');
+      }
+
+      // Devolver el usuario encontrado
+      return device[0];
+    },
 
      createUser: ({ input }) => {
       let user = null;
@@ -99,6 +107,26 @@ const rootValue = {
 
       return id
 
+    },
+
+    createDevice: ({ input }) => {
+      let device = null;
+      let data = {
+        id: Realm.BSON.ObjectID().toString(), 
+        name: input.name,
+        description: input.description,
+        price: input.price,
+        seller: input.seller,
+        status:input.status,
+        type:input.type
+      }
+      DB.write(() => {
+        device = DB.create('Device', data);
+      });
+
+      sse.emitter.emit('nuevo-dispositivo',data)
+      
+      return device;
     },
      
      /*addPost: ({title, content, authorId, blogId}) => {
