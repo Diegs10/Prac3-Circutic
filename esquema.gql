@@ -9,6 +9,7 @@ type Query {
   countDevicesByUser(userId: ID!): Int!
   countTotalSales: Int!
   countTotalDevices: Int!
+  deviceDetails(id: ID!): DeviceDetails
 }
 
 type Mutation {
@@ -107,5 +108,24 @@ type Purchase {
   buyer: User!
   seller: User!
   device: Device!
+}
+
+type Mutation {
+  createDeviceAd(input: DeviceAdInput!): DeviceAd!
+}
+
+input DeviceAdInput {
+  deviceId: ID!
+  title: String!
+  description: String!
+  price: Float!
+}
+
+type DeviceAd {
+  id: ID!
+  deviceId: ID!
+  title: String!
+  description: String!
+  price: Float!
 }
 

@@ -100,6 +100,49 @@ const rootValue = {
       return id
 
     },
+
+    listDevices: () => {
+      return DB.objects('Device');
+    },
+    
+    deviceDetails: async ({ id }) => {
+      const device = await DB.objects('Device').filtered(`id = "${id}"`);
+  
+      if (device.length === 0) {
+        throw new Error('Dispositivo no encontrado');
+      }
+  
+      return device[0];
+    },
+
+    createDeviceAd: async ({ input }) => {
+      const { deviceId, title, description, price } = input;
+  
+      // Verificar si el dispositivo existe
+      const device = await DB.objects('Device').filtered(`id = "${deviceId}"`);
+  
+      if (device.length === 0) {
+        throw new Error('Dispositivo no encontrado');
+      }
+  
+      // Crear el anuncio para el dispositivo
+      let ad = null;
+      let data = {
+        id: Realm.BSON.ObjectID().toString(),
+        deviceId: deviceId,
+        title: title,
+        description: description,
+        price: price
+      };
+  
+      DB.write(() => {
+        ad = DB.create('DeviceAd', data);
+      });
+  
+      return data;
+    }
+  
+    
      
      /*addPost: ({title, content, authorId, blogId}) => {
 
