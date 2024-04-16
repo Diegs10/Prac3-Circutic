@@ -1,131 +1,107 @@
+type User {
+  id: ID!
+  name: String!
+  email: String!
+  address: String   
+  password: String!  
+}
+
+type Device {
+  id: ID!
+  name: String!
+  type: String!
+  brand: String!
+  ownerId: ID!
+  price: Float!        
+  description: String! 
+  status: String!
+}
+
+type Purchase {
+  id: ID!
+  buyerId: ID!
+  deviceId: ID!
+  timestamp: String!
+  price: Float!
+}
+
+type Rating {
+  id: ID!
+  giverId: ID!
+  receiverId: ID!
+  rating: Float!
+  comment: String
+}
+
 type Query {
-  getUser(id: ID!): User
-  listUsers: [User!]!
-  listDevices: [Device!]!
-  listDevicesBySeller(sellerId: ID!): [Device!]!
-  getDevice(id: ID!): Device
-  listSalesByUser(userId: ID!): [Purchase!]!
-  countSalesByUser(userId: ID!): Int!
-  countDevicesByUser(userId: ID!): Int!
-  countTotalSales: Int!
-  countTotalDevices: Int!
-  deviceDetails(id: ID!): DeviceDetails
+  users: [User!]!
+  user(id: ID!): User
+  devices: [Device!]!
+  device(id: ID!): Device
+  purchases: [Purchase!]!
+  purchase(id: ID!): Purchase
+  ratings: [Rating!]!
+  rating(id: ID!): Rating
+  purchasesByUser(userId: ID!): [Purchase!]!
+  ratingsByUser(userId: ID!): [Rating!]!
+  devicesByBrand(brand: String!): [Device!]!
+  devicesByType(type: String!): [Device!]!
+  purchaseDetails(purchaseId: ID!): Purchase!
+  visibleDevices: [Device!]!
 }
 
 type Mutation {
   createUser(input: CreateUserInput!): User!
-  updateUser(id: ID!, input: UpdateUserInput!): User!
-  deleteUser(id: ID!): ID!
   createDevice(input: CreateDeviceInput!): Device!
-  updateDevice(id: ID!, input: UpdateDeviceInput!): Device!
-  deleteDevice(id: ID!): ID!
   createPurchase(input: CreatePurchaseInput!): Purchase!
-  updatePurchase(id: ID!, input: UpdatePurchaseInput!): Purchase!
-  deletePurchase(id: ID!): ID!
-}
-
-input CreateUserInput {
-  name: String!
-  email: String!
-  password: String!
-}
-
-input UpdateUserInput {
-  name: String
-  email: String
-  password: String
-}
-
-input CreateDeviceInput {
-  name: String!
-  description: String!
-  price: Float!
-  sellerId: ID!
-  status: String!
-  type: String!
+  createRating(input: CreateRatingInput!): Rating!
+  deleteDevice(id: ID!): Boolean!
+  updateDevice(id: ID!, input: UpdateDeviceInput!): Device!
+  updateUser(id: ID!, input: UpdateUserInput!): User!
+  changeDeviceStatus(id: ID!, status: String!): Device!
 }
 
 input UpdateDeviceInput {
   name: String
   description: String
+  brand: String
   price: Float
-  status: String
   type: String
 }
 
-input CreatePurchaseInput {
-  price: Float!
-  status: Boolean!
-  dateOfPurchase: String!
-  deadline: String!
-  buyerId: ID!
-  sellerId: ID!
-  deviceId: ID!
+input UpdateUserInput {
+  name: String
+  address: String
 }
 
-input UpdatePurchaseInput {
-  price: Float
-  status: Boolean
-  dateOfPurchase: String
-  deadline: String
-}
-
-
-type Device {
-  id: ID!
-  name: String!
-  description: String!
-  price: Float!
-  seller: User!
-  status: String!
-  type: String!
-}
-
-type User {
-  id: ID!
+input CreateUserInput {
   name: String!
   email: String!
+  address: String
   password: String!
-  sales: [Device]
-  ratings: [Rating]
 }
 
-type Rating {
-  id: ID!
-  title: String!
-  comment: String!
-  author: User!
-  seller: User!
-  device: Device!
-}
-
-type Purchase {
-  id: ID!
+input CreateDeviceInput {
+  name: String!
+  type: String!
+  brand: String!
+  ownerId: String!
   price: Float!
-  status: Boolean!
-  dateOfPurchase: String!
-  deadline: String!
-  buyer: User!
-  seller: User!
-  device: Device!
+  description: String
+  status: String
 }
 
-type Mutation {
-  createDeviceAd(input: DeviceAdInput!): DeviceAd!
+input CreatePurchaseInput {
+  buyerId: String!
+  deviceId: String!
+  timestamp: String!
+  amount: Float!
 }
 
-input DeviceAdInput {
-  deviceId: ID!
-  title: String!
-  description: String!
-  price: Float!
-}
-
-type DeviceAd {
-  id: ID!
-  deviceId: ID!
-  title: String!
-  description: String!
-  price: Float!
+input CreateRatingInput {
+  giverId: String!
+  receiverId: String!
+  rating: Int!
+  comment: String
 }
 

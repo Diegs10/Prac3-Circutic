@@ -1,202 +1,279 @@
-const { graphql, buildSchema } = require('graphql')
-//
+const { graphql, buildSchema } = require('graphql');
+const model = require('./model'); // Base de datos
+const Realm = require('realm');
 
+let DB;
 
-//import { GraphQLSchema, GraphQLObjectType, GraphQLString } from 'graphql';
+model.getDB().then(db => {
+    DB = db;
+});
 
-//import { graphql, buildSchema} from 'graphql'
+// Notifications
+const sse = require('./utils/notifications');
+sse.start();
 
-//import model from 'model'
-const model = require('./model') //Database
-
-let DB
-
-model.getDB().then(db => {DB = db})
-
-//Notifications
-const sse  = require('./utils/notifications')
-sse.start()
-
-const fs = require('fs')
-let gql = fs.readFileSync('esquema.gql').toString()
-const schema = buildSchema(gql)
-
-let id = 5
+const fs = require('fs');
+const gql = fs.readFileSync('esquema.gql').toString();
+const schema = buildSchema(gql);
 
 const rootValue = {
-
-     listUsers: () => {
-     let users = DB.objects('User');
-     return users
-     },
-     
-     getUser: async (_, { id }) => {
-      // Buscar el usuario por su ID en la base de datos Realm
-      let user = await DB.objects('User').filtered(`id = "${id}"`);
-
-      // Verificar si el usuario existe
-      if (user.length === 0) {
-        throw new Error('Usuario no encontrado');
-      }
-
-      // Devolver el usuario encontrado
-      return user[0];
-    }
-  ,
-    listDevices: () => {
-    let devices = DB.objects('Device');
-    return devices 
+    // Consultas (Queries)
+    users: () => {
+        return DB.objects('User');
+    },
+    user: async ({ id }) => {
+        const user = await DB.objectForPrimaryKey('User', id);
+        if (!user) {
+            throw new Error('Usuario no encontrado');
+        }
+        return user;
+    },
+    devices: () => {
+        return DB.objects('Device');
+    },
+    device: async ({ id }) => {
+        const device = await DB.objectForPrimaryKey('Device', id);
+        if (!device) {
+            throw new Error('Dispositivo no encontrado');
+        }
+        return device;
+    },
+    purchases: () => {
+        return DB.objects('Purchase');
+    },
+    purchase: async ({ id }) => {
+        const purchase = await DB.objectForPrimaryKey('Purchase', id);
+        if (!purchase) {
+            throw new Error('Compra no encontrada');
+        }
+        return purchase;
+    },
+    ratings: () => {
+        return DB.objects('Rating');
+    },
+    rating: async ({ id }) => {
+        const rating = await DB.objectForPrimaryKey('Rating', id);
+        if (!rating) {
+            throw new Error('Valoración no encontrada');
+        }
+        return rating;
     },
 
-    getDevice: async (_, { id }) => {
-      // Buscar el usuario por su ID en la base de datos Realm
-      let device = await DB.objects('Device').filtered(`id = "${id}"`);
-
-      // Verificar si el usuario existe
-      if (device.length === 0) {
-        throw new Error('El dispositivo no se ha encontrado');
-      }
-
-      // Devolver el usuario encontrado
-      return device[0];
+    purchasesByUser: ({ userId }) => {
+        const user = DB.objectForPrimaryKey('User', userId);
+        if (!user) {
+            throw new Error('El usuario no existe.');
+        }
+        return DB.objects('Purchase').filtered(`buyerId = "${userId}"`);
     },
 
-     createUser: ({ input }) => {
-      let user = null;
-      let data = {
-        id: Realm.BSON.ObjectID().toString(), 
-        name: input.name,
-        email: input.email,
-        password: input.password,
-        sales: input.sales,
-        ratings:input.ratings
-      }
-      DB.write(() => {
-        user = DB.create('User', data);
-      });
-
-      sse.emitter.emit('nuevo-cliente',data)
-      
-      return user;
+    ratingsByUser: ({ userId }) => {
+        const user = DB.objectForPrimaryKey('User', userId);
+        if (!user) {
+            throw new Error('El usuario no existe.');
+        }
+        return DB.objects('Rating').filtered(`receiverId = "${userId}" OR giverId = "${userId}"`);
     },
 
-    updateUser: async ({id, input}) => {
-      const user = await DB.objects('User').filtered(`id = "${id}"`);
-      if (user.length === 0) {
-        throw new Error('El usuario no se ha encontrado');
-      }
-      DB.write(() => {
-        if (input.name !== undefined) user[0].name = input.name;
-        if (input.email !== undefined) user[0].email = input.email;
-        if (input.password !== undefined) user[0].password = input.password;
-      });
-
-      return user[0];
-
+    devicesByBrand: ({ brand }) => {
+        return DB.objects('Device').filtered(`brand = "${brand}"`);
     },
 
-    deleteUser: async ({id}) => {
-      const user = await DB.objects('User').filtered(`id = "${id}"`);
-      if (user.length === 0) {
-        throw new Error('El usuario no existe');
-      }
-
-      DB.write(() => {
-        DB.delete(user);
-      });
-
-      return id
-
+    devicesByType: ({ type }) => {
+        return DB.objects('Device').filtered(`type = "${type}"`);
     },
 
-    deviceDetails: async ({ id }) => {
-      const device = await DB.objects('Device').filtered(`id = "${id}"`);
-  
-      if (device.length === 0) {
-        throw new Error('Dispositivo no encontrado');
-      }
-  
-      return device[0];
+    purchaseDetails: ({ purchaseId }) => {
+        const purchase = DB.objectForPrimaryKey('Purchase', purchaseId);
+        if (!purchase) {
+            throw new Error('La compra no existe.');
+        }
+        return purchase;
     },
 
-    createDeviceAd: async ({ input }) => {
-      const { deviceId, title, description, price } = input;
-  
-      // Verificar si el dispositivo existe
-      const device = await DB.objects('Device').filtered(`id = "${deviceId}"`);
-  
-      if (device.length === 0) {
-        throw new Error('Dispositivo no encontrado');
-      }
-  
-      // Crear el anuncio para el dispositivo
-      let ad = null;
-      let data = {
-        id: Realm.BSON.ObjectID().toString(),
-        deviceId: deviceId,
-        title: title,
-        description: description,
-        price: price
-      };
-  
-      DB.write(() => {
-        ad = DB.create('DeviceAd', data);
-      });
-  
-      return data;
-    }
-  
-    
+    visibleDevices: () => {
+        return DB.objects('Device').filtered('status = "visible"');
+    },
+
+    // Mutaciones (Mutations)
+    createUser: ({ input }) => {
+        const { name, email, address, password } = input;
+
+        // Verificar si ya existe un usuario con el mismo correo electrónico
+        const existingUserWithEmail = DB.objects('User').filtered(`email = "${email}"`);
+        if (existingUserWithEmail.length > 0) {
+            throw new Error('Ya existe un usuario con este correo electrónico.');
+        }
+
+        let usr = DB.objectForPrimaryKey('User', name);
+
+        if (!usr) {
+            let data = {
+                id: Realm.BSON.ObjectID().toString(),
+                name: name,
+                email: email,
+                address: address,
+                password: password
+            };
+
+            DB.write(() => {
+                usr = DB.create('User', data);
+            });
+
+            return data;
+        }
+
+        return null;
+    },
+
     createDevice: ({ input }) => {
-      let device = null;
-      let data = {
-        id: Realm.BSON.ObjectID().toString(), 
-        name: input.name,
-        description: input.description,
-        price: input.price,
-        seller: input.seller,
-        status:input.status,
-        type:input.type
-      }
-      DB.write(() => {
-        device = DB.create('Device', data);
-      });
+        const { name, type, brand, ownerId, price, description, status } = input;
 
-      sse.emitter.emit('nuevo-dispositivo',data)
-      
-      return device;
+        // No hay necesidad de verificar duplicados para el nombre de dispositivo
+
+        let device = null;
+
+        let data = {
+            id: Realm.BSON.ObjectID().toString(),
+            name: name,
+            type: type,
+            brand: brand,
+            ownerId: ownerId,
+            price: price,
+            description: description,
+            status: status
+        };
+
+        DB.write(() => {
+            device = DB.create('Device', data);
+        });
+
+        return device;
     },
-     
-     /*addPost: ({title, content, authorId, blogId}) => {
 
-       let blog = DB.objectForPrimaryKey('Blog', blogId)
-       let auth = DB.objectForPrimaryKey('User', authorId)
-       let post = DB.objectForPrimaryKey('Post', title)
-       
-       if (blog && auth && !post){
+    createPurchase: ({ input }) => {
+        const { buyerId, deviceId, timestamp, amount } = input;
+    
+        // Verificar si el comprador y el dispositivo existen en la base de datos
+        const buyer = DB.objectForPrimaryKey('User', buyerId);
+        const device = DB.objectForPrimaryKey('Device', deviceId);
+        if (!buyer || !device) {
+            throw new Error('El comprador o el dispositivo no existen.');
+        }
+    
+        let purchase = null;
+    
+        let data = {
+            id: Realm.BSON.ObjectID().toString(),
+            buyerId: buyerId,
+            deviceId: deviceId,
+            timestamp: timestamp,
+            amount: amount
+        };
+    
+        DB.write(() => {
+            purchase = DB.create('Purchase', data);
+        });
+    
+        return purchase;
+    },
+    
+    createRating: ({ input }) => {
+        const { giverId, receiverId, rating, comment } = input;
+    
+        // Verificar si tanto el dador como el receptor existen en la base de datos
+        const giver = DB.objectForPrimaryKey('User', giverId);
+        const receiver = DB.objectForPrimaryKey('User', receiverId);
+        if (!giver || !receiver) {
+            throw new Error('El dador o el receptor no existen.');
+        }
+    
+        let ratingObj = null;
+    
+        let data = {
+            id: Realm.BSON.ObjectID().toString(),
+            giverId: giverId,
+            receiverId: receiverId,
+            rating: rating,
+            comment: comment
+        };
+    
+        DB.write(() => {
+            ratingObj = DB.create('Rating', data);
+        });
+    
+        return ratingObj;
+    },
 
-          let data = {
-                       title: title,
-                       content: content,
-                       author: auth,
-                       blog: blog,
-                       timestamp: new Date()
-                      }
+    deleteDevice: ({ id }) => {
+        // Verificar si el dispositivo existe en la base de datos
+        const device = DB.objectForPrimaryKey('Device', id);
+        if (!device) {
+            throw new Error('El dispositivo no existe.');
+        }
+    
+        DB.write(() => {
+            DB.delete(device);
+        });
+    
+        return true; // Devolver true para indicar que el dispositivo fue eliminado con éxito
+    },
 
-          DB.write( () => { 
-            post = DB.create('Post', data)
-            // emit the post to all open blogs
-            sse.emitter.emit('new-post', post)
-          }) 
-          
-          return data
-       }
+    updateDevice: ({ id, input }) => {
+        const { name, description, brand, price, type } = input;
+    
+        // Verificar si el dispositivo existe en la base de datos
+        let device = DB.objectForPrimaryKey('Device', id);
+        if (!device) {
+            throw new Error('El dispositivo no existe.');
+        }
+    
+        DB.write(() => {
+            // Actualizar los campos del dispositivo con los valores proporcionados
+            if (name) device.name = name;
+            if (description) device.description = description;
+            if (brand) device.brand = brand;
+            if (price) device.price = price;
+            if (type) device.type = type;
+        });
+    
+        return device;
+    },
+    
+    updateUser: ({ id, input }) => {
+        const { name, address } = input;
+    
+        // Verificar si el usuario existe en la base de datos
+        let user = DB.objectForPrimaryKey('User', id);
+        if (!user) {
+            throw new Error('El usuario no existe.');
+        }
+    
+        DB.write(() => {
+            // Actualizar los campos del usuario con los valores proporcionados
+            if (name) user.name = name;
+            if (address) user.address = address;
+        });
+    
+        return user;
+    },
 
-       return null
-     }
-     */
-}
+    changeDeviceStatus: ({ id, status }) => {
+        // Verificar si el dispositivo existe en la base de datos
+        let device = DB.objectForPrimaryKey('Device', id);
+        if (!device) {
+            throw new Error('El dispositivo no existe.');
+        }
+    
+        DB.write(() => {
+            device.status = status;
+        });
+    
+        return device;
+    }    
+    
+};
 
-exports.root   = rootValue
-exports.schema = schema
-exports.sse    = sse
+exports.root = rootValue;
+exports.schema = schema;
+exports.sse = sse;
