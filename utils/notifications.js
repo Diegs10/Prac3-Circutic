@@ -7,7 +7,6 @@ const emitter = new events.EventEmitter()
 
 exports.eventStream = (req, res) => {
   console.log('Nueva conexion SSE ...')
-  console.log('Carles es molt bo')
   STREAM.init(req, res)
 }
 
