@@ -139,19 +139,20 @@
                         query: `
                             mutation {
                                 createDevice(input: {
-                                    name: "${this.newDevice.name}",
+                                    name:  "${this.newDevice.name}",
                                     brand: "${this.newDevice.brand}",
                                     type: "${this.newDevice.type}",
-                                    price: ${this.newDevice.price},
-                                    description: "${this.newDevice.description}"
+                                    ownerId: "12345",
+                                    price: ${parseInt(this.newDevice.price)},
+                                    description: "${this.newDevice.description}",
+                                    status: "pending"
                                 }) {
-                                    id
                                     name
                                     brand
                                     type
                                     price
                                     description
-                                }
+                                }   
                             }
                         `
                     })
@@ -159,7 +160,6 @@
                 .then(response => response.json())
                 .then(data => {
                     if (data.data && data.data.createDevice) {
-                        // Clear form fields
                         this.newDevice = {
                             name: '',
                             brand: '',

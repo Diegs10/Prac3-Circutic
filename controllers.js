@@ -130,7 +130,7 @@ const rootValue = {
         const { name, type, brand, ownerId, price, description, status } = input;
 
         // No hay necesidad de verificar duplicados para el nombre de dispositivo
-
+        console.log(input);
         let device = null;
 
         let data = {
