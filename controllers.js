@@ -109,7 +109,7 @@ const rootValue = {
 
         if (!usr) {
             let data = {
-                id: Realm.BSON.ObjectID().toString(),
+                _id: Realm.BSON.ObjectID(),
                 name: name,
                 email: email,
                 address: address,
@@ -134,7 +134,7 @@ const rootValue = {
         let device = null;
 
         let data = {
-            id: Realm.BSON.ObjectID().toString(),
+            _id: Realm.BSON.ObjectID(),
             name: name,
             type: type,
             brand: brand,
@@ -164,7 +164,7 @@ const rootValue = {
         let purchase = null;
     
         let data = {
-            id: Realm.BSON.ObjectID().toString(),
+            _id: Realm.BSON.ObjectID(),
             buyerId: buyerId,
             deviceId: deviceId,
             timestamp: timestamp,
@@ -191,7 +191,7 @@ const rootValue = {
         let ratingObj = null;
     
         let data = {
-            id: Realm.BSON.ObjectID().toString(),
+            _id: Realm.BSON.ObjectID(),
             giverId: giverId,
             receiverId: receiverId,
             rating: rating,

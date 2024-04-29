@@ -3,9 +3,9 @@ const Realm = require('realm');
 // Definir los esquemas de datos
 const UserSchema = {
   name: 'User',
-  primaryKey: 'id',
+  primaryKey: '_id',
   properties: {
-    id: 'string',
+    _id: 'objectId',
     name: 'string',
     email: 'string',
     address: 'string',
@@ -15,9 +15,9 @@ const UserSchema = {
 
 const DeviceSchema = {
   name: 'Device',
-  primaryKey: 'id',
+  primaryKey: '_id',
   properties: {
-    id: 'string',
+    _id: 'objectId',
     name: 'string',
     type: 'string',
     brand: 'string',
@@ -30,9 +30,9 @@ const DeviceSchema = {
 
 const PurchaseSchema = {
   name: 'Purchase',
-  primaryKey: 'id',
+  primaryKey: '_id',
   properties: {
-    id: 'string',
+    _id: 'objectId',
     buyerId: 'string',
     deviceId: 'string',
     timestamp: 'string',
@@ -42,9 +42,9 @@ const PurchaseSchema = {
 
 const RatingSchema = {
   name: 'Rating',
-  primaryKey: 'id',
+  primaryKey: '_id',
   properties: {
-    id: 'string',
+    _id: 'objectId',
     giverId: 'string',
     receiverId: 'string',
     rating: 'float',
@@ -52,9 +52,36 @@ const RatingSchema = {
   }
 };
 
-let config = { path: './data/blogs.realm', schema: [UserSchema, DeviceSchema, PurchaseSchema, RatingSchema] };
+const app = new Realm.App({ id: "circutic-clvxecx" }); // Reemplaza con tu propio ID de Realm App
 
-exports.getDB = async () => await Realm.open(config);
+let sync = {
+  user: app.currentUser,
+  flexible: true,
+  initialSubscriptions: {
+    update: (subs, realm) => {
+      subs.add(realm.objects('User'), { name: "users" });
+      subs.add(realm.objects('Device'), { name: "devices" });
+      subs.add(realm.objects('Purchase'), { name: "purchases" });
+      subs.add(realm.objects('Rating'), { name: "ratings" });
+    },
+    rerunOnOpen: true,
+  },
+};
+
+let config = {
+  path: './data/circutic.realm', // Nombre de la base de datos
+  sync: sync,
+  schema: [UserSchema, DeviceSchema, PurchaseSchema, RatingSchema], // Los esquemas a sincronizar
+};
+
+// Función para obtener la base de datos con autenticación anónima
+exports.getDB = async () => {
+  await app.logIn(Realm.Credentials.anonymous());
+  return await Realm.open(config);
+};
+
+exports.app = app;
+
 
 // Parte de pruebas
 if (process.argv[1] == __filename) {
@@ -62,15 +89,12 @@ if (process.argv[1] == __filename) {
     Realm.deleteFile({ path: './data/blogs.realm' }); // Borra la base de datos si existe
 
     // Creamos la base de datos Realm con nuestros esquemas
-    let DB = new Realm({
-      path: './data/blogs.realm',
-      schema: [DeviceSchema, UserSchema, RatingSchema, PurchaseSchema]
-    });
+    let DB = new Realm(config)
 
     // Insertamos objetos en la base de datos
     DB.write(() => {
       let user0 = DB.create('User', {
-        id: 'u1',
+        _id: new Realm.BSON.ObjectId(),
         name: 'Jon Comida',
         email: 'john@example.com',
         address: 'Calle Barrachina, 18',
@@ -78,28 +102,28 @@ if (process.argv[1] == __filename) {
       });
 
       let device0 = DB.create('Device', {
-        id: 'd1',
+        _id: new Realm.BSON.ObjectId(),
         name: 'iPhone 12',
         type: "smartphone",
         brand: "Apple",
-        ownerId: user0.id,
+        ownerId: user0._id.toString(),
         price: 777.99,
         description: 'en perfecto estado ;)',
         status: 'available'
       });
 
       let purchase0 = DB.create('Purchase', {
-        id: 'purchase0',
-        buyerId: user0.id,
-        deviceId: device0.id,
+        _id: new Realm.BSON.ObjectId(),
+        buyerId: user0._id.toString(),
+        deviceId: device0._id.toString(),
         timestamp: '10/04/2024',
         amount: 750
       });
 
       let rating0 = DB.create('Rating', {
-        id: 'r0',
-        giverId: user0.id,
-        receiverId: user0.id,
+        _id: new Realm.BSON.ObjectId(),
+        giverId: user0._id.toString(),
+        receiverId: user0._id.toString(),
         rating: 4.5,
         comment: 'Bona compra'
       });
