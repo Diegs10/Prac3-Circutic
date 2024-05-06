@@ -134,7 +134,7 @@ const rootValue = {
         const { name, type, brand, ownerId, price, description, status } = input;
 
         // No hay necesidad de verificar duplicados para el nombre de dispositivo
-
+        console.log(input);
         let device = null;
 
         let data = {
@@ -157,7 +157,6 @@ const rootValue = {
 
     createPurchase: ({ input }) => {
         const { buyerId, deviceId, timestamp, amount } = input;
-    
         // Verificar si el comprador y el dispositivo existen en la base de datos
         const buyer = DB.objectForPrimaryKey('User', buyerId);
         const device = DB.objectForPrimaryKey('Device', deviceId);

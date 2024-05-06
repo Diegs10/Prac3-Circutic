@@ -22,7 +22,7 @@ type Purchase {
   buyerId: ID!
   deviceId: ID!
   timestamp: String!
-  price: Float!
+  amount: Float!
 }
 
 type Rating {
@@ -55,7 +55,7 @@ type Mutation {
   createDevice(input: CreateDeviceInput!): Device!
   createPurchase(input: CreatePurchaseInput!): Purchase!
   createRating(input: CreateRatingInput!): Rating!
-  deleteDevice(id: ID!): Boolean!
+  deleteDevice(id:  ID!): Boolean!
   updateDevice(id: ID!, input: UpdateDeviceInput!): Device!
   updateUser(id: ID!, input: UpdateUserInput!): User!
   changeDeviceStatus(id: ID!, status: String!): Device!
@@ -101,7 +101,7 @@ input CreatePurchaseInput {
 input CreateRatingInput {
   giverId: String!
   receiverId: String!
-  rating: Int!
+  rating: Float!
   comment: String
 }
 
