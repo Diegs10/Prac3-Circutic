@@ -1,5 +1,5 @@
 type User {
-  id: ID!
+  _id: ID!
   name: String!
   email: String!
   address: String   
@@ -7,7 +7,7 @@ type User {
 }
 
 type Device {
-  id: ID!
+  _id: ID!
   name: String!
   type: String!
   brand: String!
@@ -18,7 +18,7 @@ type Device {
 }
 
 type Purchase {
-  id: ID!
+  _id: ID!
   buyerId: ID!
   deviceId: ID!
   timestamp: String!
@@ -26,7 +26,7 @@ type Purchase {
 }
 
 type Rating {
-  id: ID!
+  _id: ID!
   giverId: ID!
   receiverId: ID!
   rating: Float!
