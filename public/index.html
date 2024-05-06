@@ -153,7 +153,7 @@
                 const query = `
                     query {
                         devicesByBrand(brand: "${this.searchBrand}") {
-                            id
+                            _id
                             name
                             brand
                         }
@@ -167,6 +167,7 @@
                 })
                 .then(response => response.json())
                 .then(data => {
+                    console.log(data)
                     if (data.data && data.data.devicesByBrand) {
                         this.devices = data.data.devicesByBrand;
                     } else {
@@ -240,7 +241,7 @@
                                     timestamp: "${this.newPurchase.timestamp}",
                                     amount: ${parseFloat(this.newPurchase.amount)}
                                 }) {
-                                    id
+                                    _id
                                     buyerId
                                     deviceId
                                     timestamp
@@ -252,6 +253,7 @@
                 })
                 .then(response => response.json())
                 .then(data => {
+                    console.log(data)
                     if (data.data && data.data.createPurchase) {
                         // Limpiar los campos después de la compra exitosa
                         this.newPurchase = {
@@ -284,7 +286,7 @@
                                 rating: ${parseFloat(this.newRating.rating)},
                                 comment: "${this.newRating.comment}"
                             }) {
-                                id
+                                _id
                                 giverId
                                 receiverId
                                 rating
@@ -296,6 +298,7 @@
                 })
                 .then(response => response.json())
                 .then(data => {
+                    console.log(data)
                     if (data.data && data.data.createRating) {
                         // Limpiar los campos después de enviar la calificación
                         this.newRating = {

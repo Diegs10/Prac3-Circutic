@@ -1,5 +1,5 @@
 type User {
-  _id: ID!
+  _id: String!
   name: String!
   email: String!
   address: String   
@@ -7,46 +7,46 @@ type User {
 }
 
 type Device {
-  _id: ID!
+  _id: String!
   name: String!
   type: String!
   brand: String!
-  ownerId: ID!
+  ownerId: String!
   price: Float!        
   description: String! 
   status: String!
 }
 
 type Purchase {
-  _id: ID!
-  buyerId: ID!
-  deviceId: ID!
+  _id: String!
+  buyerId: String!
+  deviceId: String!
   timestamp: String!
   amount: Float!
 }
 
 type Rating {
-  _id: ID!
-  giverId: ID!
-  receiverId: ID!
+  _id: String!
+  giverId: String!
+  receiverId: String!
   rating: Float!
   comment: String
 }
 
 type Query {
   users: [User!]!
-  user(id: ID!): User
+  user(id: String!): User
   devices: [Device!]!
-  device(id: ID!): Device
+  device(id: String!): Device
   purchases: [Purchase!]!
-  purchase(id: ID!): Purchase
+  purchase(id: String!): Purchase
   ratings: [Rating!]!
-  rating(id: ID!): Rating
-  purchasesByUser(userId: ID!): [Purchase!]!
-  ratingsByUser(userId: ID!): [Rating!]!
+  rating(id: String!): Rating
+  purchasesByUser(userId: String!): [Purchase!]!
+  ratingsByUser(userId: String!): [Rating!]!
   devicesByBrand(brand: String!): [Device!]!
   devicesByType(type: String!): [Device!]!
-  purchaseDetails(purchaseId: ID!): Purchase!
+  purchaseDetails(purchaseId: String!): Purchase!
   visibleDevices: [Device!]!
 }
 
@@ -55,10 +55,10 @@ type Mutation {
   createDevice(input: CreateDeviceInput!): Device!
   createPurchase(input: CreatePurchaseInput!): Purchase!
   createRating(input: CreateRatingInput!): Rating!
-  deleteDevice(id:  ID!): Boolean!
-  updateDevice(id: ID!, input: UpdateDeviceInput!): Device!
-  updateUser(id: ID!, input: UpdateUserInput!): User!
-  changeDeviceStatus(id: ID!, status: String!): Device!
+  deleteDevice(id:  String!): Boolean!
+  updateDevice(id: String!, input: UpdateDeviceInput!): Device!
+  updateUser(id: String!, input: UpdateUserInput!): User!
+  changeDeviceStatus(id: String!, status: String!): Device!
 }
 
 input UpdateDeviceInput {

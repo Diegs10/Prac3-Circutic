@@ -158,8 +158,9 @@ const rootValue = {
     createPurchase: ({ input }) => {
         const { buyerId, deviceId, timestamp, amount } = input;
         // Verificar si el comprador y el dispositivo existen en la base de datos
-        const buyer = DB.objectForPrimaryKey('User', buyerId);
-        const device = DB.objectForPrimaryKey('Device', deviceId);
+        const buyer = DB.objectForPrimaryKey('User', Realm.BSON.ObjectID(buyerId));
+        const device = DB.objectForPrimaryKey('Device', Realm.BSON.ObjectID(deviceId));
+    
         if (!buyer || !device) {
             throw new Error('El comprador o el dispositivo no existen.');
         }
@@ -185,8 +186,10 @@ const rootValue = {
         const { giverId, receiverId, rating, comment } = input;
     
         // Verificar si tanto el dador como el receptor existen en la base de datos
-        const giver = DB.objectForPrimaryKey('User', giverId);
-        const receiver = DB.objectForPrimaryKey('User', receiverId);
+
+        const giver = DB.objectForPrimaryKey('User', Realm.BSON.ObjectID(giverId));
+        const receiver = DB.objectForPrimaryKey('User', Realm.BSON.ObjectID(receiverId));
+        console.log(giver.name, receiver.name)
         if (!giver || !receiver) {
             throw new Error('El dador o el receptor no existen.');
         }
@@ -198,14 +201,13 @@ const rootValue = {
             giverId: giverId,
             receiverId: receiverId,
             rating: rating,
-            comment: comment
+            comment: ""
         };
     
         DB.write(() => {
             ratingObj = DB.create('Rating', data);
         });
-    
-        return ratingObj;
+        return data;
     },
 
     deleteDevice: ({ id }) => {

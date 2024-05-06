@@ -106,13 +106,8 @@ if (process.argv[1] == __filename) {
         name: 'iPhone 12',
         type: "smartphone",
         brand: "Apple",
-<<<<<<< HEAD
-        ownerId: user0.id,
-        price: 777,
-=======
         ownerId: user0._id.toString(),
         price: 777.99,
->>>>>>> 5a44cf4903d8a93c47239807d9f8c6add8578cd8
         description: 'en perfecto estado ;)',
         status: 'available'
       });
