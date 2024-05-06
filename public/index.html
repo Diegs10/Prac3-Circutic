@@ -79,6 +79,24 @@
             </b-form-group>
             <b-button type="submit" variant="primary">Crear Dispositivo</b-button>
         </b-form>
+
+        <b-form @submit.prevent="createPurchase">
+            <h2 class="mt-5 mb-3">Comprar Dispositivo</h2>
+            <b-form-group label="ID del Comprador" label-for="buyer-id">
+                <b-form-input id="buyer-id" v-model="buyerId" required></b-form-input>
+            </b-form-group>
+            <b-form-group label="ID del Vendedor" label-for="seller-id">
+                <b-form-input id="seller-id" v-model="sellerId" required></b-form-input>
+            </b-form-group>
+            <b-form-group label="Timestamp" label-for="timestamp">
+                <b-form-input id="timestamp" type="datetime-local" v-model="timestamp" required></b-form-input>
+            </b-form-group>
+            <b-form-group label="Precio" label-for="buy-price">
+                <b-form-input id="buy-price" type="number" v-model="buyPrice" required></b-form-input>
+            </b-form-group>
+            <b-button type="submit" variant="primary">Comprar Dispositivo</b-button>
+        </b-form>
+
     </b-container>
 </div>
 
@@ -177,7 +195,51 @@
                     console.error('Error creating device:', error);
                     alert('Error al crear el dispositivo. Por favor, inténtelo de nuevo.');
                 });
-            }
+            },
+
+            createPurchase() {
+            fetch('/graphql', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    query: `
+                        mutation {
+                            buyDevice(input: {
+                                user: "${this.userId}",
+                                deviceId: "${this.DevideId}",
+                                timestamp: "${this.timestamp}",
+                                price: ${parseInt(this.buyPrice)}
+                            }) {
+                                id
+                                buyerId
+                                sellerId
+                                timestamp
+                                price
+                            }   
+                        }
+                    `
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.data && data.data.buyDevice) {
+                    // Limpiar los campos después de la compra exitosa
+                    this.buyerId = '';
+                    this.sellerId = '';
+                    this.timestamp = '';
+                    this.buyPrice = null;
+                    // Mostrar mensaje de éxito o manejar según sea necesario
+                    alert('Dispositivo comprado exitosamente');
+                } else {
+                    alert('Error al comprar el dispositivo. Por favor, inténtelo de nuevo.');
+                }
+            })
+            .catch(error => {
+                console.error('Error buying device:', error);
+                alert('Error al comprar el dispositivo. Por favor, inténtelo de nuevo.');
+            });
+        }
+
         }
     });
 </script>
