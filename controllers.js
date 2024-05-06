@@ -1,6 +1,7 @@
 const { graphql, buildSchema } = require('graphql');
 const model = require('./model'); // Base de datos
 const Realm = require('realm');
+const graph = require('./my-graph.json');
 
 let DB;
 
@@ -17,6 +18,9 @@ const gql = fs.readFileSync('esquema.gql').toString();
 const schema = buildSchema(gql);
 
 const rootValue = {
+
+    jsonld: () => JSON.stringify(graph),
+
     // Consultas (Queries)
     users: () => {
         return DB.objects('User');
