@@ -153,7 +153,6 @@ const rootValue = {
 
     createPurchase: ({ input }) => {
         const { buyerId, deviceId, timestamp, amount } = input;
-    
         // Verificar si el comprador y el dispositivo existen en la base de datos
         const buyer = DB.objectForPrimaryKey('User', buyerId);
         const device = DB.objectForPrimaryKey('Device', deviceId);

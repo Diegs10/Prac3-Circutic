@@ -83,7 +83,7 @@ if (process.argv[1] == __filename) {
         type: "smartphone",
         brand: "Apple",
         ownerId: user0.id,
-        price: 777.99,
+        price: 777,
         description: 'en perfecto estado ;)',
         status: 'available'
       });
